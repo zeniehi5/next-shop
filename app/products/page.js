@@ -1,7 +1,19 @@
 import React from "react";
-import { products } from "./data/products";
 
-// simple product car component
+async function getProducts() {
+  const response = await fetch("http://localhost:3000/api/products", {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  const result = await response.json();
+  return result.data;
+}
+
+// simple product card component
 function ProductCard({ product }) {
   return (
     <div
@@ -23,23 +35,29 @@ function ProductCard({ product }) {
       <p style={{ fontWeight: "bold", color: "#333" }}>
         $ {product.price.toLocaleString()}
       </p>
-      <button
-        style={{
-          padding: "8px 15px",
-          backgroundColor: "#333",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        add to cart
-      </button>
+      {product.stock > 0 ? (
+        <button
+          style={{
+            padding: "8px 15px",
+            backgroundColor: "#333",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          add to cart
+        </button>
+      ) : (
+        <p style={{ color: "red", fontWeight: "bold" }}>Out of stock</p>
+      )}
     </div>
   );
 }
 
 // products page component
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <main style={{ padding: "40px" }}>
       <h1>Product List ({products.length} items)</h1>
